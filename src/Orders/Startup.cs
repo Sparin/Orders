@@ -8,19 +8,24 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Orders.Model.Context;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Orders
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment _env;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -28,6 +33,15 @@ namespace Orders
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string ordersDbConnectionString = Configuration.GetConnectionString("OrdersDb");
+
+            services.AddDbContextPool<OrdersDbContext>(options =>
+            {
+                options.UseSqlite(ordersDbConnectionString);
+                if (_env.IsDevelopment())
+                    options.EnableSensitiveDataLogging();
+            }, 128);
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddSwaggerGen(c =>
