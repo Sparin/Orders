@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -14,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Orders.Model.Context;
+using Orders.Services;
+using Orders.Services.Interfaces;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Orders
@@ -42,7 +45,16 @@ namespace Orders
                     options.EnableSensitiveDataLogging();
             }, 128);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddAutoMapper();
+            services.AddTransient<IOrderService, OrderService>();
+
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+                    options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.None;
+                }); ;
 
             services.AddSwaggerGen(c =>
             {
