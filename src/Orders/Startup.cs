@@ -47,7 +47,9 @@ namespace Orders
 
             services.AddAutoMapper();
             services.AddTransient<IOrderService, OrderService>();
-
+#if DEBUG
+            services.AddCors();
+#endif
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options =>
@@ -91,7 +93,16 @@ namespace Orders
                     c.SwaggerEndpoint("/swagger/v0.0.0/swagger.json", "Orders API");
                 });
             }
-
+#if DEBUG
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("http://localhost:3000");
+                //builder.AllowAnyOrigin();
+                builder.AllowAnyHeader();
+                builder.AllowAnyMethod();
+                builder.AllowCredentials();
+            });
+#endif
             app.UseHttpsRedirection();
             app.UseMvc();
         }
