@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Orders.Model.DTO.Order
 {
-    public class SearchQuery
+    public class SearchRequest
     {
-        public Fruit? Fruit { get; set; }
+        public Fruit[] Fruits { get; set; }
         public int? MinimumAmount { get; set; }
         public int? MaximumAmount { get; set; }
 

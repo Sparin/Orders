@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Orders.Model.DTO;
 using Orders.Model.DTO.Order;
 using Orders.Model.Entities;
 using Orders.Services.Interfaces;
@@ -43,18 +44,20 @@ namespace Orders.Controllers
         /// <param name="page">Offset. Depends on limit</param>
         /// <param name="limit">Count of orders per request (max 50)</param>
         /// <response code="200">Successful operation</response>
-        [ProducesResponseType(200, Type = typeof(IEnumerable<OrderDto>))]
+        [ProducesResponseType(200, Type = typeof(SearchResponse<OrderDto>))]
         [HttpGet]
-        public async Task<IActionResult> SearchOrdersAsync(SearchQuery query, int page = Helpers.DEFAULT_PAGE, int limit = Helpers.MAX_LIMIT_ON_PAGE)
+        public async Task<IActionResult> SearchOrdersAsync(SearchRequest request, int page = Helpers.DEFAULT_PAGE, int limit = Helpers.MAX_LIMIT_ON_PAGE)
         {
             Helpers.CorrectPageLimitValues(ref page, ref limit);
             _logger.LogInformation($"Searching orders on page {page} with limit {limit}");
 
-            var entities = await _orders.GetOrdersAsync(query, page, limit);
-
-            var result = _mapper.Map<IEnumerable<OrderDto>>(entities);
+            var entities = await _orders.GetOrdersAsync(request, page, limit);
+            var totalItems = await _orders.GetOrdersCountAsync(request);       
+            
+            var items = _mapper.Map<IEnumerable<OrderDto>>(entities);
+            var searchResponse = new SearchResponse<OrderDto>(totalItems, page, limit, items);
             _logger.LogInformation($"User received {entities.Count()} orders");
-            return Ok(result);
+            return Ok(searchResponse);
         }
 
         /// <summary>
@@ -153,7 +156,7 @@ namespace Orders.Controllers
         ///         "address": "Saint-Petersburg, Nevskiy prospect 54/1",
         ///         "isCallbackRequired": true,
         ///         "eta": "2019-08-09T10:53:49.100Z"
-        ///         }
+        ///     }
         ///
         /// </remarks>
         /// <param name="id">Identificator of order</param>

@@ -46,33 +46,12 @@ namespace Orders.Services
             return await _dbContext.Orders.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersAsync(SearchQuery options, int page, int limit)
+        public async Task<IEnumerable<Order>> GetOrdersAsync(SearchRequest request, int page, int limit)
         {
-            if (options == null)
-                throw new ArgumentNullException(nameof(options));
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
-            var predicate = PredicateBuilder.New<Order>();
-
-            predicate = PredicateBuilder.Or<Order>(predicate, order =>
-                (string.IsNullOrEmpty(options.Address) || order.Address.Contains(options.Address)) &&
-                (options.IsCallbackRequired == null || order.IsCallbackRequired == options.IsCallbackRequired) &&
-                (options.MinimumAmount == null || order.Amount >= options.MinimumAmount) &&
-                (options.MaximumAmount == null || order.Amount <= options.MaximumAmount) &&
-                (options.Fruit == null || order.Fruit == options.Fruit) &&
-                (options.FromETA == null || order.ETA >= options.FromETA) &&
-                (options.UntilETA == null || order.ETA <= options.UntilETA)
-            );
-
-            IQueryable<Order> query = _dbContext.Orders
-                .Where(predicate);
-
-            if (!string.IsNullOrWhiteSpace(options.OrderBy) && typeof(Order).GetProperty(options.OrderBy) != null)
-                if (options.Descending)
-                    query = query.OrderByDescending(options.OrderBy);
-                else
-                    query = query.OrderBy(options.OrderBy);
-            else
-                query = query.OrderByDescending(x => x.Id);
+            var query = BuildSearchQuery(request);
 
             var orders = await query
                 .Skip(page * limit)
@@ -80,6 +59,18 @@ namespace Orders.Services
                 .ToArrayAsync();
 
             return orders;
+        }
+
+        public async Task<int> GetOrdersCountAsync(SearchRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var query = BuildSearchQuery(request);
+
+            var totalItems = await query.CountAsync();
+
+            return totalItems;
         }
 
         public async Task<Order> UpdateOrderAsync(Order order)
@@ -91,6 +82,37 @@ namespace Orders.Services
             await _dbContext.SaveChangesAsync();
 
             return order;
+        }
+
+        private IQueryable<Order> BuildSearchQuery(SearchRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var predicate = PredicateBuilder.New<Order>();
+
+            predicate = PredicateBuilder.Or<Order>(predicate, order =>
+                (string.IsNullOrEmpty(request.Address) || order.Address.Contains(request.Address)) &&
+                (request.IsCallbackRequired == null || order.IsCallbackRequired == request.IsCallbackRequired) &&
+                (request.MinimumAmount == null || order.Amount >= request.MinimumAmount) &&
+                (request.MaximumAmount == null || order.Amount <= request.MaximumAmount) &&
+                (request.Fruits == null || request.Fruits.Contains(order.Fruit)) &&
+                (request.FromETA == null || order.ETA >= request.FromETA) &&
+                (request.UntilETA == null || order.ETA <= request.UntilETA)
+            );
+
+            IQueryable<Order> query = _dbContext.Orders
+                .Where(predicate);
+
+            if (!string.IsNullOrWhiteSpace(request.OrderBy) && typeof(Order).GetProperty(request.OrderBy) != null)
+                if (request.Descending)
+                    query = query.OrderByDescending(request.OrderBy);
+                else
+                    query = query.OrderBy(request.OrderBy);
+            else
+                query = query.OrderByDescending(x => x.Id);
+
+            return query;
         }
     }
 }

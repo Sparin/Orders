@@ -11,7 +11,8 @@ namespace Orders.Services.Interfaces
     {
         Task<Order> CreateOrderAsync(Order order);
         Task<Order> FindOrderAsync(int id);
-        Task<IEnumerable<Order>> GetOrdersAsync(SearchQuery options, int page, int limit);
+        Task<IEnumerable<Order>> GetOrdersAsync(SearchRequest request, int page, int limit);
+        Task<int> GetOrdersCountAsync(SearchRequest request);
         Task<Order> UpdateOrderAsync(Order Order);
         Task DeleteOrderAsync(Order Order);
     }
