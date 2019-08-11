@@ -52,8 +52,9 @@ namespace Orders.Controllers
             _logger.LogInformation($"Searching orders on page {page} with limit {limit}");
 
             var entities = await _orders.GetOrdersAsync(request, page, limit);
-            var totalItems = await _orders.GetOrdersCountAsync(request);       
-            
+            var totalItems = await _orders.GetOrdersCountAsync(request);
+
+            //TODO: Sanitize entities for avoid OWASP Top 10 A7:2017-Cross-Site Scripting (XSS)
             var items = _mapper.Map<IEnumerable<OrderDto>>(entities);
             var searchResponse = new SearchResponse<OrderDto>(totalItems, page, limit, items);
             _logger.LogInformation($"User received {entities.Count()} orders");
@@ -86,6 +87,7 @@ namespace Orders.Controllers
                 return NotFound();
             }
 
+            //TODO: Sanitize entities for avoid OWASP Top 10 A7:2017-Cross-Site Scripting (XSS)
             _logger.LogInformation($"User received order with id {id}");
             var result = _mapper.Map<OrderDto>(entity);
             return Ok(result);
@@ -121,7 +123,7 @@ namespace Orders.Controllers
             _logger.LogInformation($"User trying to create new order");
             var entity = _mapper.Map<Order>(requestDto);
 
-            //TODO: Sanizize entities for avoid OWASP Top 10 A1:2017 Injection (XSS)
+            //TODO: Sanitize entities for avoid OWASP Top 10 A7:2017-Cross-Site Scripting (XSS)
             _logger.LogInformation($"Validating new order");
 
             if (ModelState.IsValid)
@@ -179,8 +181,8 @@ namespace Orders.Controllers
                 return NotFound();
             }
 
+            //TODO: Sanitize entities for avoid OWASP Top 10 A7:2017-Cross-Site Scripting (XSS)
             entity = _mapper.Map(requestDto, entity);
-            //TODO: Sanizize entities for avoid OWASP Top 10 A1:2017 Injection (XSS)
 
             _logger.LogInformation($"Validating updated order");
 
