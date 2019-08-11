@@ -103,6 +103,8 @@ namespace Orders
                 builder.AllowCredentials();
             });
 #endif
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

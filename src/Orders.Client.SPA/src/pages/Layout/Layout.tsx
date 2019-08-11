@@ -1,7 +1,7 @@
 import React from 'react';
 import * as Ant from 'antd';
 
-const { Header, Footer, Sider, Content } = Ant.Layout;
+const { Header, Footer, Content } = Ant.Layout;
 
 export default class Layout extends React.Component {
 

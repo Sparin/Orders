@@ -1,14 +1,13 @@
 import React from 'react';
-import { Table, Divider, Tag, Form, Button, Tooltip, Collapse, Dropdown, Menu, Icon, Pagination } from 'antd';
+import { Table, Button, Tooltip, Collapse } from 'antd';
 import moment from 'moment';
 import './Orders.css';
 import SearchFilters from '../../components/SearchFilters/SearchFilters';
-import Search from 'antd/lib/input/Search';
 import { searchOrders } from '../../api/order/methods';
 import { SearchResponse, Order, SearchOptions } from '../../api/order/models';
-import { defaultPage } from '../../api/makeHttpRequest';
+import { Link } from 'react-router-dom';
 
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
 const { Panel } = Collapse;
 
 
@@ -19,7 +18,7 @@ export default class Orders extends React.Component<any, any> {
         super(props);
         this.state = {
             orders: [],
-            isLoading: false,
+            isLoading: true,
             currentPage: 1,
             limit: 50,
             totalPages: 0,
@@ -53,28 +52,16 @@ export default class Orders extends React.Component<any, any> {
 
     applySearchFilters(options: SearchOptions) {
         this.setState({ searchOptions: options });
-
     }
 
     render() {
-        const menu = (
-            <Menu >
-                <Menu.Item key="1">
-                    <Icon type="edit" />
-                    Edit
-              </Menu.Item>
-                <Menu.Item key="2">
-                    <Icon type="delete" />
-                    Delete
-              </Menu.Item>
-            </Menu>
-        );
-
         return (
             <div className="orders-layout-content">
 
                 <div className="table-control-bar">
-                    <Button type="primary" icon="form">Create</Button>
+                    <Link to="/order/create">
+                        <Button type="primary" icon="form">Create</Button>
+                    </Link>
                 </div>
 
                 <div className="table-filters-bar">
@@ -86,6 +73,7 @@ export default class Orders extends React.Component<any, any> {
                 </div>
 
                 <Table dataSource={this.state.orders}
+                    loading={this.state.isLoading}
                     style={{ marginTop: "8px" }}
                     rowKey="id"
                     pagination={{
@@ -106,8 +94,6 @@ export default class Orders extends React.Component<any, any> {
                     <Column title="Amount" dataIndex="amount" />
                     <Column title="ETA" dataIndex="eta"
                         render={(text, record) => {
-                            console.log(text);
-                            console.log(record);
                             const date = new Date(text)
                             return (
                                 <Tooltip title={moment(date).format('DD.MM.YYYY HH:mm:ss')}>
@@ -115,12 +101,11 @@ export default class Orders extends React.Component<any, any> {
                                 </Tooltip>)
                         }} />
                     <Column
-                        title=""
-
-                        render={(text, record) => (
-                            <Dropdown overlay={menu}>
-                                <Icon type="menu" />
-                            </Dropdown>
+                        title="Action"
+                        render={(text, record: Order) => (
+                            <span>
+                                <Link to={`/order/${record.id}`}>View</Link>
+                            </span>
                         )}
                     />
                 </Table>

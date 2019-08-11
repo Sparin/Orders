@@ -1,9 +1,8 @@
 import React from 'react';
-import { Form, DatePicker, TimePicker, Button, Slider, Select, Checkbox } from 'antd';
-import { keys } from 'ts-transformer-keys';
-import { Order, Fruit, SearchOptions } from '../../api/order/models';
+import { Form, DatePicker, Button, Slider, Select, Checkbox } from 'antd';
+import { Fruit, SearchOptions } from '../../api/order/models';
 
-const { MonthPicker, RangePicker } = DatePicker;
+const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 export default class SearchFilters extends React.Component<any, any> {

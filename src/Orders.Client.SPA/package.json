@@ -2,6 +2,7 @@
   "name": "orders.client.spa",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@types/jest": "24.0.17",
     "@types/node": "12.7.0",
@@ -40,5 +41,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "uglifyjs-webpack-plugin": "^2.2.0"
   }
 }

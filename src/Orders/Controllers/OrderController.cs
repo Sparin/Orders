@@ -40,7 +40,7 @@ namespace Orders.Controllers
         ///     GET /api/order?page=0&amp;limit=50
         ///
         /// </remarks>
-        /// <param name="query">Searching options</param>
+        /// <param name="request">Searching options</param>
         /// <param name="page">Offset. Depends on limit</param>
         /// <param name="limit">Count of orders per request (max 50)</param>
         /// <response code="200">Successful operation</response>
@@ -121,6 +121,7 @@ namespace Orders.Controllers
             _logger.LogInformation($"User trying to create new order");
             var entity = _mapper.Map<Order>(requestDto);
 
+            //TODO: Sanizize entities for avoid OWASP Top 10 A1:2017 Injection (XSS)
             _logger.LogInformation($"Validating new order");
 
             if (ModelState.IsValid)
@@ -179,6 +180,7 @@ namespace Orders.Controllers
             }
 
             entity = _mapper.Map(requestDto, entity);
+            //TODO: Sanizize entities for avoid OWASP Top 10 A1:2017 Injection (XSS)
 
             _logger.LogInformation($"Validating updated order");
 

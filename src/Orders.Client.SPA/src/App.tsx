@@ -5,6 +5,7 @@ import Layout from './pages/Layout/Layout';
 import NotFound from './pages/NotFound/NotFound';
 import Orders from './pages/Orders/Orders';
 import { BrowserRouter } from 'react-router-dom';
+import Order from './components/Order/Order';
 
 const App: React.FC = () => {
   return (
@@ -13,7 +14,8 @@ const App: React.FC = () => {
         <BrowserRouter>
           <Switch>
             <Route path="/" exact component={Orders} />
-            <Route path="/order" exact component={Orders} />
+            <Route path="/orders" exact component={Orders} />
+            <Route path="/order/:id(\d+)?/:action(edit|create)?" exact component={Order} />
             <Route path="/404" component={NotFound} />
             <Redirect from='*' to='/404' />
           </Switch>
